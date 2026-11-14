@@ -12,7 +12,7 @@ export interface Book {
   rating: number;
   startedAt: string | null;
   finishedAt: string | null;
-  note: string;
+  notes: string[];
   updatedAt: string;
 }
 

@@ -69,7 +69,6 @@ import { StatsCards } from '../stats-cards/stats-cards';
             (statusChange)="onStatus($event)"
             (ratingChange)="onRating($event)"
             (progressChange)="onProgress($event)"
-            (noteChange)="onNote($event)"
           />
         </div>
       </section>
@@ -122,13 +121,6 @@ export class ReadingsPage {
     const book = this.books.selectedBook();
     if (book) {
       this.books.updateProgress(book.id, page);
-    }
-  }
-
-  protected onNote(note: string): void {
-    const book = this.books.selectedBook();
-    if (book) {
-      this.books.updateNote(book.id, note);
     }
   }
 }

@@ -64,9 +64,9 @@ import { WeeklyStreak } from '../../shared/weekly-streak/weekly-streak';
       </div>
 
       <div class="mt-auto flex items-center gap-3 pt-6">
-        <div class="grid h-10 w-10 place-items-center rounded-full bg-[#ddd6c8] font-medium text-ink">M</div>
+        <div class="grid h-10 w-10 place-items-center rounded-full bg-[#ddd6c8] font-medium text-ink">A</div>
         <div class="min-w-0">
-          <p class="truncate text-sm font-medium">Mariana Costa</p>
+          <p class="truncate text-sm font-medium">Ana Caroline</p>
           <p class="text-xs text-muted">Leitora curiosa</p>
         </div>
         <button type="button" class="ml-auto text-muted" aria-label="Mais opções">⋯</button>

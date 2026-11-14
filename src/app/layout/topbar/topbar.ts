@@ -16,7 +16,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         <p class="text-[11px] tracking-[0.14em] text-muted uppercase">
           {{ today | date: dateFormat : undefined : 'pt-BR' }}
         </p>
-        <div class="grid h-8 w-8 place-items-center rounded-full bg-[#ddd6c8] text-xs font-medium">M</div>
+        <div class="grid h-8 w-8 place-items-center rounded-full bg-[#ddd6c8] text-xs font-medium">A</div>
       </div>
     </header>
   `,

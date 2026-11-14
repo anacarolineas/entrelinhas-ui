@@ -26,14 +26,16 @@ export class BookService {
   readonly filteredBooks = computed(() => {
     const term = this.search().trim().toLowerCase();
     const status = this.statusFilter();
-    return this.booksState().filter((book) => {
-      const matchesStatus = status === 'todos' || book.status === status;
-      const matchesTerm =
-        !term ||
-        book.title.toLowerCase().includes(term) ||
-        book.author.toLowerCase().includes(term);
-      return matchesStatus && matchesTerm;
-    });
+    return this.booksState()
+      .filter((book) => {
+        const matchesStatus = status === 'todos' || book.status === status;
+        const matchesTerm =
+          !term ||
+          book.title.toLowerCase().includes(term) ||
+          book.author.toLowerCase().includes(term);
+        return matchesStatus && matchesTerm;
+      })
+      .sort((a, b) => (b.startedAt ?? '').localeCompare(a.startedAt ?? ''));
   });
 
   readonly selectedBook = computed(() => {
@@ -63,15 +65,16 @@ export class BookService {
   readonly weeklyStreak = signal([true, true, true, true, false, false, false]);
 
   readonly notes = computed(() =>
-    this.booksState()
-      .filter((book) => book.note.trim().length > 0)
-      .map((book) => ({
+    this.booksState().flatMap((book) =>
+      book.notes.map((text, index) => ({
+        id: `${book.id}-${index}`,
         bookId: book.id,
         title: book.title,
         author: book.author,
         coverUrl: book.coverUrl,
-        note: book.note,
+        note: text,
       })),
+    ),
   );
 
   readonly currentQuote = computed<DailyQuote>(
@@ -113,10 +116,6 @@ export class BookService {
     this.patch(id, { rating });
   }
 
-  updateNote(id: string, note: string): void {
-    this.patch(id, { note });
-  }
-
   addBook(input: NewBookInput): void {
     const book: Book = {
       id: crypto.randomUUID(),
@@ -131,7 +130,8 @@ export class BookService {
       status: input.status,
       rating: 0,
       startedAt: new Date().toISOString().slice(0, 10),
-      note: '',
+      finishedAt: null,
+      notes: [],
       updatedAt: new Date().toISOString(),
     };
     this.booksState.update((books) => [book, ...books]);

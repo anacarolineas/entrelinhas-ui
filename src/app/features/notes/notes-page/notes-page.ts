@@ -15,7 +15,7 @@ import { BookService } from '../../../core/services/book.service';
       </p>
 
       <div class="mt-8 grid gap-4 md:grid-cols-2">
-        @for (note of books.notes(); track note.bookId) {
+        @for (note of books.notes(); track note.id) {
           <article class="rounded-2xl border border-line bg-card p-5">
             <div class="flex items-center gap-3">
               <img [src]="note.coverUrl" [alt]="note.title" class="h-12 w-9 rounded-md object-cover" />

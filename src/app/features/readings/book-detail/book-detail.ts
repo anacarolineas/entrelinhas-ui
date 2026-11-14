@@ -1,5 +1,15 @@
 import { DatePipe, UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { Book, BookStatus, STATUS_LABEL } from '../../../core/models/book.model';
 import { RatingStars } from '../../../shared/rating-stars/rating-stars';
 import { ProgressUpdater } from '../progress-updater/progress-updater';
@@ -75,24 +85,51 @@ import { ProgressUpdater } from '../progress-updater/progress-updater';
           Atualizar progresso
         </button>
 
-        <div class="mt-5 rounded-2xl border border-line bg-soft p-4">
-          <div class="mb-2 flex items-center justify-between text-[11px] tracking-[0.16em] text-muted uppercase">
-            <span>✎ Uma nota sua</span>
-            <span>Editável</span>
+        @if (book.notes.length > 0) {
+          <div class="mt-5" (mouseenter)="pauseNotes()" (mouseleave)="resumeNotes()">
+            <div class="rounded-2xl border border-line bg-soft p-4">
+              <div class="mb-2 flex items-center justify-between text-[11px] tracking-[0.16em] text-muted uppercase">
+                <span>✎ Uma nota sua</span>
+                @if (book.notes.length > 1) {
+                  <span>{{ noteIndex() + 1 }} / {{ book.notes.length }}</span>
+                }
+              </div>
+              <p class="min-h-24 text-sm leading-relaxed">{{ currentNote() }}</p>
+              @if (book.notes.length > 1) {
+                <div class="mt-3 flex items-center justify-between">
+                  <button
+                    type="button"
+                    class="grid h-7 w-7 place-items-center rounded-full border border-line text-muted"
+                    (click)="showNote(noteIndex() - 1)"
+                    aria-label="Nota anterior"
+                  >
+                    ‹
+                  </button>
+                  <div class="flex gap-1.5">
+                    @for (note of book.notes; track $index) {
+                      <button
+                        type="button"
+                        class="h-1.5 w-1.5 rounded-full bg-[#d8d5cc]"
+                        [class.bg-forest]="noteIndex() === $index"
+                        [class.w-4]="noteIndex() === $index"
+                        (click)="showNote($index)"
+                        [attr.aria-label]="'Ir para nota ' + ($index + 1)"
+                      ></button>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="grid h-7 w-7 place-items-center rounded-full border border-line text-muted"
+                    (click)="showNote(noteIndex() + 1)"
+                    aria-label="Próxima nota"
+                  >
+                    ›
+                  </button>
+                </div>
+              }
+            </div>
           </div>
-          <textarea
-            class="min-h-24 w-full resize-none bg-transparent text-sm leading-relaxed outline-none"
-            [value]="noteDraft() ?? book.note"
-            (input)="noteDraft.set($any($event.target).value)"
-          ></textarea>
-          <button
-            type="button"
-            class="mt-2 text-sm font-medium text-forest"
-            (click)="saveNote(book.note)"
-          >
-            Salvar nota ›
-          </button>
-        </div>
+        }
       </section>
     } @else {
       <section class="grid h-full place-items-center rounded-2xl border border-line bg-card p-8 text-sm text-muted">
@@ -120,12 +157,32 @@ export class BookDetail {
   readonly statusChange = output<BookStatus>();
   readonly ratingChange = output<number>();
   readonly progressChange = output<number>();
-  readonly noteChange = output<string>();
 
   protected readonly labels = STATUS_LABEL;
   protected readonly editing = signal(false);
-  protected readonly noteDraft = signal<string | null>(null);
+  protected readonly noteIndex = signal(0);
   protected readonly Math = Math;
+  private readonly pausedNotes = signal(false);
+
+  constructor() {
+    effect(() => {
+      this.book()?.id;
+      this.noteIndex.set(0);
+    });
+
+    const timer = setInterval(() => {
+      if (this.pausedNotes()) {
+        return;
+      }
+      const count = this.book()?.notes.length ?? 0;
+      if (count < 2) {
+        return;
+      }
+      this.noteIndex.update((index) => (index + 1) % count);
+    }, 5500);
+
+    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+  }
 
   protected readonly percent = computed(() => {
     const book = this.book();
@@ -140,8 +197,28 @@ export class BookDetail {
     return book ? Math.max(book.totalPages - book.currentPage, 0) : 0;
   });
 
-  protected saveNote(fallback: string): void {
-    this.noteChange.emit(this.noteDraft() ?? fallback);
+  protected readonly currentNote = computed(() => {
+    const notes = this.book()?.notes ?? [];
+    if (!notes.length) {
+      return '';
+    }
+    return notes[this.noteIndex() % notes.length];
+  });
+
+  protected showNote(index: number): void {
+    const count = this.book()?.notes.length ?? 0;
+    if (!count) {
+      return;
+    }
+    this.noteIndex.set((index + count) % count);
+  }
+
+  protected pauseNotes(): void {
+    this.pausedNotes.set(true);
+  }
+
+  protected resumeNotes(): void {
+    this.pausedNotes.set(false);
   }
 
   protected saveProgress(update: { currentPage: number; status: BookStatus }): void {
