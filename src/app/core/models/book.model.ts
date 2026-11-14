@@ -11,8 +11,16 @@ export interface Book {
   status: BookStatus;
   rating: number;
   startedAt: string | null;
+  finishedAt: string | null;
   note: string;
   updatedAt: string;
+}
+
+export interface ReadingUpdate {
+  currentPage: number;
+  status: BookStatus;
+  startedAt: string | null;
+  finishedAt: string | null;
 }
 
 export interface DailyQuote {

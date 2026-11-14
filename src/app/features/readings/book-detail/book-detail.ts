@@ -12,10 +12,10 @@ import { ProgressUpdater } from '../progress-updater/progress-updater';
     @if (book(); as book) {
       <section class="flex h-full flex-col rounded-2xl border border-line bg-card p-5">
         <div class="flex items-center justify-between text-xs text-muted">
-          <span class="flex items-center gap-2">
+          <button type="button" class="flex items-center gap-2" (click)="editing.set(true)">
             <span class="h-1.5 w-1.5 rounded-full bg-sage"></span>
             {{ labels[book.status] | uppercase }}
-          </span>
+          </button>
           <div class="flex items-center gap-2">
             <span>{{ index() + 1 }} de {{ total() }}</span>
             <button class="grid h-7 w-7 place-items-center rounded-full border border-line" (click)="previous.emit()" type="button">‹</button>
@@ -39,19 +39,6 @@ import { ProgressUpdater } from '../progress-updater/progress-updater';
         </div>
 
         <div class="mt-6 flex items-center justify-between">
-          <p class="text-sm text-muted">Status</p>
-          <select
-            class="rounded-lg border border-line bg-card px-3 py-1.5 text-sm"
-            [value]="book.status"
-            (change)="statusChange.emit($any($event.target).value)"
-          >
-            @for (option of statusOptions; track option) {
-              <option [value]="option">{{ labels[option] }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="mt-5 flex items-center justify-between">
           <div>
             <p class="text-[11px] tracking-[0.16em] text-muted uppercase">Sua avaliação</p>
             <app-rating-stars [value]="book.rating" (rated)="ratingChange.emit($event)" />
@@ -80,13 +67,13 @@ import { ProgressUpdater } from '../progress-updater/progress-updater';
           </div>
         </div>
 
-        <div class="mt-8">
-          <app-progress-updater
-            [currentPage]="book.currentPage"
-            [totalPages]="book.totalPages"
-            (save)="progressChange.emit($event)"
-          />
-        </div>
+        <button
+          type="button"
+          class="mt-8 w-full rounded-xl border border-line py-2.5 text-sm text-forest"
+          (click)="editing.set(true)"
+        >
+          Atualizar progresso
+        </button>
 
         <div class="mt-5 rounded-2xl border border-line bg-soft p-4">
           <div class="mb-2 flex items-center justify-between text-[11px] tracking-[0.16em] text-muted uppercase">
@@ -112,6 +99,16 @@ import { ProgressUpdater } from '../progress-updater/progress-updater';
         Selecione um livro para acompanhar.
       </section>
     }
+
+    @if (editing() && book(); as book) {
+      <app-progress-updater
+        [currentPage]="book.currentPage"
+        [totalPages]="book.totalPages"
+        [status]="book.status"
+        (closed)="editing.set(false)"
+        (save)="saveProgress($event)"
+      />
+    }
   `,
 })
 export class BookDetail {
@@ -126,7 +123,7 @@ export class BookDetail {
   readonly noteChange = output<string>();
 
   protected readonly labels = STATUS_LABEL;
-  protected readonly statusOptions: BookStatus[] = ['lendo', 'lido', 'pausado', 'quero-ler'];
+  protected readonly editing = signal(false);
   protected readonly noteDraft = signal<string | null>(null);
   protected readonly Math = Math;
 
@@ -145,5 +142,11 @@ export class BookDetail {
 
   protected saveNote(fallback: string): void {
     this.noteChange.emit(this.noteDraft() ?? fallback);
+  }
+
+  protected saveProgress(update: { currentPage: number; status: BookStatus }): void {
+    this.progressChange.emit(update.currentPage);
+    this.statusChange.emit(update.status);
+    this.editing.set(false);
   }
 }

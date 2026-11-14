@@ -19,7 +19,9 @@ import { WeeklyStreak } from '../../shared/weekly-streak/weekly-streak';
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
           </svg>
         </span>
-        <span class="font-serif text-[22px] leading-none tracking-tight">entrelinhas<span class="text-forest">.</span></span>
+        <span class="font-logo text-[23px] font-semibold leading-none tracking-[-0.03em] text-[#2b2724]">
+          entrelinhas<span class="inline-block text-[1.28em] leading-none text-[#d4897a]">.</span>
+        </span>
       </a>
 
       <p class="mb-3 text-[10px] font-medium tracking-[0.18em] text-muted uppercase">Seu espaço</p>

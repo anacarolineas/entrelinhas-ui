@@ -7,6 +7,7 @@ export interface NewBookInput {
   title: string;
   author: string;
   genre: string;
+  coverUrl: string;
   totalPages: number;
   status: BookStatus;
 }
@@ -121,8 +122,10 @@ export class BookService {
       id: crypto.randomUUID(),
       title: input.title.trim(),
       author: input.author.trim(),
-      genre: input.genre.trim() || 'Ficção',
-      coverUrl: 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=500&fit=crop',
+      genre: input.genre.trim(),
+      coverUrl:
+        input.coverUrl.trim() ||
+        'https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=500&fit=crop',
       totalPages: input.totalPages,
       currentPage: input.status === 'lido' ? input.totalPages : 0,
       status: input.status,

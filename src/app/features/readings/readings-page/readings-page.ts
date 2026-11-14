@@ -42,7 +42,7 @@ import { StatsCards } from '../stats-cards/stats-cards';
         <div class="mb-4 mt-4 flex items-end justify-between">
           <div>
             <p class="text-[11px] tracking-[0.16em] text-muted uppercase">Acompanhe por aqui</p>
-            <h2 class="font-serif text-3xl">
+            <h2 class="font-serif text-3xl mt-2">
               Últimos livros
               <span class="ml-2 align-middle text-base text-muted">{{ books.books().length }}</span>
             </h2>
